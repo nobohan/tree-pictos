@@ -1,10 +1,15 @@
 import svgwrite
 import math
 
-# Set constants
 CENTER = (150, 150)   # Center coordinates of the circle
 RADIUS = 100          # Radius of the circle
+N = 4
 
+def deg2rad(angle):
+    return angle*2*math.pi/360
+
+def rad2deg(angle):
+    return angle/2/math.pi*360
 
 def create_circle(dwg, circle_center, circle_radius):
     return dwg.circle(center=circle_center, r=circle_radius, fill='none', stroke='yellow')
@@ -15,7 +20,6 @@ def move(origin, length, angle):
 
 def move_convex(origin, length, angle):
     return (origin[0] + length * math.cos(angle) + math.sin(2*angle)*length, origin[1] + length * math.sin(angle)+ math.sin(2*angle)*length)
-
 
 def create_arc(dwg, origin, radius, angle, angleStart):
     """ Create an arc as a Path. The arc is a portion of a circle of origin 'origin' and radius 'radius', starting at angleStart and lasting until angle."""
@@ -28,22 +32,17 @@ def create_arc(dwg, origin, radius, angle, angleStart):
     return dwg.path(d=path_data, fill='none', stroke='black')
 
 
-def create_convex_arc(dwg, origin, radius, angle, angleStart):
+def create_convex_arc(dwg, origin, radius, angle, angleStart, convex_f):
     """ Create an arc as a Path. The arc is a portion of a circle of origin 'origin' and radius 'radius', starting at angleStart and lasting until angle."""
     coords = []
+    origin_t = (origin[0] + convex_f*radius, origin[1] + convex_f*radius)
+    radius_t = radius * math.sqrt(2 * (convex_f*convex_f) - 2 * convex_f + 1)
     for a in range(1, round(rad2deg(angle))):
-        c = move_convex(origin, radius, deg2rad(a) + angleStart)
+        c = move(origin_t, radius_t, deg2rad(a) + angleStart)
         coords.append(c)
 
     path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
     return dwg.path(d=path_data, fill='none', stroke='blue')
-
-
-def deg2rad(angle):
-    return angle*2*math.pi/360
-
-def rad2deg(angle):
-    return angle/2/math.pi*360
 
 def create_shape(filename):
 
@@ -52,10 +51,11 @@ def create_shape(filename):
     circle = create_circle(dwg, CENTER, RADIUS)
     dwg.add(circle)
 
-    arc = create_arc(dwg, CENTER, RADIUS, deg2rad(360/4*3), deg2rad(45/2))
+    arc = create_arc(dwg, CENTER, RADIUS, deg2rad(360/N), deg2rad(0))
     dwg.add(arc)
 
-    convex_arc = create_convex_arc(dwg, CENTER, RADIUS, deg2rad(360/4*3), deg2rad(45/2))
+    convex_f = 0.25
+    convex_arc = create_convex_arc(dwg, CENTER, RADIUS, deg2rad(360/3), deg2rad(-20), convex_f) #TODO trouver la fonction qui change les 2 angles en fonction de convex_f
     dwg.add(convex_arc)
 
     dwg.save(pretty=True)

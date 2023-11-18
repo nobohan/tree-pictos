@@ -44,7 +44,7 @@ def create_convex_arc(dwg, origin, radius, angle, angleStart, convex_f):
     path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
     return dwg.path(d=path_data, fill='none', stroke='blue')
 
-def create_shape(filename):
+def create_shape(filename, convex_f):
 
     dwg = svgwrite.Drawing(filename, size=('300', '300'), profile='tiny')
 
@@ -54,12 +54,20 @@ def create_shape(filename):
     arc = create_arc(dwg, CENTER, RADIUS, deg2rad(360/N), deg2rad(0))
     dwg.add(arc)
 
-    convex_f = 0.25
-    convex_arc = create_convex_arc(dwg, CENTER, RADIUS, deg2rad(360/3), deg2rad(-20), convex_f) #TODO trouver la fonction qui change les 2 angles en fonction de convex_f
+
+    angle = 4 * math.atan(convex_f) + deg2rad(360/N) #TODO trouver la fonction qui change les 2 angles en fonction de convex_f
+    angle_start = (angle - deg2rad(360/N)) / 2
+    print(angle)
+    #print(angle_start)
+    convex_arc = create_convex_arc(dwg, CENTER, RADIUS, angle, -angle_start, convex_f)
     dwg.add(convex_arc)
 
     dwg.save(pretty=True)
 
 
 svg_filename = 'shape.svg'
-create_shape(svg_filename)
+
+CONVEX_F = [0, 0.25, 0.33, 0.5, 0.75, 1]
+
+for f in CONVEX_F:
+    create_shape(f'shape.svg_{f}', f)

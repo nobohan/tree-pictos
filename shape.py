@@ -54,10 +54,9 @@ def create_shape(filename, convex_f):
     arc = create_arc(dwg, CENTER, RADIUS, deg2rad(360/N), deg2rad(0))
     dwg.add(arc)
 
-
-    angle = 4 * math.atan(convex_f) + deg2rad(360/N) #TODO trouver la fonction qui change les 2 angles en fonction de convex_f
+    angle = 2 * (math.atan(convex_f*RADIUS/(RADIUS - convex_f*RADIUS)) + math.pi/4)
     angle_start = (angle - deg2rad(360/N)) / 2
-    print(angle)
+    print(rad2deg(angle))
     #print(angle_start)
     convex_arc = create_convex_arc(dwg, CENTER, RADIUS, angle, -angle_start, convex_f)
     dwg.add(convex_arc)
@@ -67,7 +66,7 @@ def create_shape(filename, convex_f):
 
 svg_filename = 'shape.svg'
 
-CONVEX_F = [0, 0.25, 0.33, 0.5, 0.75, 1]
+CONVEX_F = [0, 0.25, 0.33, 0.5, 0.75, 0.99]
 
 for f in CONVEX_F:
     create_shape(f'shape.svg_{f}', f)

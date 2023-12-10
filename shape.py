@@ -16,7 +16,7 @@ def rad2deg(angle):
 
 def create_circle(dwg, circle_center, circle_radius):
     return dwg.circle(
-        center=circle_center, r=circle_radius, fill="none", stroke="yellow"
+        center=circle_center, r=circle_radius, fill="none", stroke="#ffd42a"
     )
 
 
@@ -39,7 +39,7 @@ def create_arc(dwg, origin, radius, angle, angleStart):
         coords.append(c)
 
     path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
-    return dwg.path(d=path_data, fill="none", stroke="blue")
+    return dwg.path(d=path_data, fill="none", stroke="#555")
 
 
 def create_convex_arc(dwg, origin, radius, angle, angleStart, convex_f, i):
@@ -57,7 +57,7 @@ def create_convex_arc(dwg, origin, radius, angle, angleStart, convex_f, i):
         coords.append(c)
 
     path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
-    return dwg.path(d=path_data, fill="none", stroke="black")
+    return dwg.path(d=path_data, fill="none", stroke="#111")
 
 
 def create_convex_shape(filename, n, convex_f):
@@ -84,9 +84,8 @@ def create_convex_shape(filename, n, convex_f):
     dwg.save(pretty=True)
 
 
-CONVEX_F = [0, 0.25, 0.33, 0.5, 0.75, 0.99]
-#CONVEX_F = [0.33, 0.5]
+CONVEX_F = [0, 0.2, 0.25, 0.33, 0.4, 0.5]
 
-for n in [4]:
+for n in [3, 4]:
     for f in CONVEX_F:
-        create_convex_shape(f"shape{n}_factor{f}.svg", n, f)
+        create_convex_shape(f"convex{n}_factor{f}.svg", n, f)

@@ -73,10 +73,11 @@ def create_convex_shape(filename, n, g):
         dwg.add(arc)
 
         #print("angle")
-        angle = 2 * (
-            math.atan(g * RADIUS / (RADIUS - g * RADIUS)) + math.pi / n
-        ) #TODO normaliser la formule en fct de radius_t
-        #print(angle)
+        # angle = 2 * (
+        #     math.atan(g * RADIUS / (RADIUS - g * RADIUS)) + math.pi / n
+        # ) #TODO normaliser la formule en fct de radius_t
+        # #print(angle)
+
 
 
         radius_t = RADIUS * math.sqrt(
@@ -87,6 +88,12 @@ def create_convex_shape(filename, n, g):
 
         print("angle quartant")
         print(rad2deg(angle_quartant))
+
+        angle = 2 * (
+            math.asin(g * math.sin(math.pi / n) / (radius_t / RADIUS)) + math.pi / n
+        ) #TODO normaliser la formule en fct de radius_t
+        #print(angle)
+
         convex_arc = create_convex_arc(
             dwg, CENTER, radius_t, angle, g, angle_quartant, n
         )

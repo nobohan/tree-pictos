@@ -31,7 +31,7 @@ def move_convex(origin, length, angle):
     )
 
 
-def create_arc(dwg, origin, radius, angle, angleStart):
+def create_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     """Create an arc as a Path. The arc is a portion of a circle of origin 'origin' and radius 'radius', starting at angleStart and lasting until angle."""
     coords = []
     for a in range(1, round(rad2deg(angle))):
@@ -39,44 +39,30 @@ def create_arc(dwg, origin, radius, angle, angleStart):
         coords.append(c)
 
     path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
-    return dwg.path(d=path_data, fill="none", stroke="#555")
+    return dwg.path(d=path_data, fill="none", stroke=strokeColor)
 
 
-def create_convex_arc(dwg, origin, radius, angle, angleStart, convex_f, i, n):
+def create_convex_arc(dwg, origin, radius, angle, g, angle_quartant, n):
     """
     Create an arc as a Path. The arc is a portion of a circle of origin 'origin'
     and radius 'radius', starting at angleStart and lasting until angle.
     The origin point is translated by a convex_f factor. The radius is adapted by
     this convex_f factor.
     """
-    coords = []
 
-    radius_t = radius * math.sqrt(
-        (1 - convex_f) ** 2 + (convex_f * math.tan((2 * math.pi) / (2 * n))) ** 2
+    angle_quartant_start = angle_quartant + ((2 * math.pi)/(2 * n))
+
+    origin_t = (
+        origin[0] + math.cos(angle_quartant_start) * g * RADIUS,
+        origin[1] + math.sin(angle_quartant_start) * g * RADIUS,
     )
 
-    x_sign = 1 if i in [0, 3] else -1
-    y_sign = 1 if i in [0, 1] else -1
-    if n == 3:
-        origin_t = (
-            origin[0] + x_sign * convex_f * radius, # * math.cos((2 * math.pi) / (2 * n)),
-            origin[1] + y_sign * convex_f * radius * math.tan((2 * math.pi) / (2 * n)),
-        )
-    else:  # n=4
-        origin_t = (
-            origin[0] + x_sign * convex_f * radius,
-            origin[1] + y_sign * convex_f * radius,
-        )
+    angle_start = angle_quartant - (angle - 2 * math.pi / n) / 2
 
-    for a in range(1, round(rad2deg(angle))):
-        c = move(origin_t, radius_t, deg2rad(a) + angleStart)
-        coords.append(c)
-
-    path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
-    return dwg.path(d=path_data, fill="none", stroke="#111")
+    return create_arc(dwg, origin_t, radius, angle, angle_start, "#111")
 
 
-def create_convex_shape(filename, n, convex_f):
+def create_convex_shape(filename, n, g):
     dwg = svgwrite.Drawing(filename, size=("300", "300"), profile="tiny")
 
     circle = create_circle(dwg, CENTER, RADIUS)
@@ -86,25 +72,33 @@ def create_convex_shape(filename, n, convex_f):
         arc = create_arc(dwg, CENTER, RADIUS, 2 * math.pi / n, i * (2 * math.pi / n))
         dwg.add(arc)
 
-        print("angle")
+        #print("angle")
         angle = 2 * (
-            math.atan(convex_f * RADIUS / (RADIUS - convex_f * RADIUS)) + math.pi / n
+            math.atan(g * RADIUS / (RADIUS - g * RADIUS)) + math.pi / n
+        ) #TODO normaliser la formule en fct de radius_t
+        #print(angle)
+
+
+        radius_t = RADIUS * math.sqrt(
+            (1 - g * math.cos(math.pi / n)) ** 2 + (g * math.sin(math.pi / n)) ** 2
         )
-        print(angle)
-        angle_start = -(angle - 2 * math.pi / n) / 2 + i * (2 * math.pi / n)
-        print("angle start")
-        print(rad2deg(angle_start))
+        print(radius_t)
+        angle_quartant = i * (2 * math.pi / n)
+
+        print("angle quartant")
+        print(rad2deg(angle_quartant))
         convex_arc = create_convex_arc(
-            dwg, CENTER, RADIUS, angle, angle_start, convex_f, i, n
+            dwg, CENTER, radius_t, angle, g, angle_quartant, n
         )
         dwg.add(convex_arc)
 
     dwg.save(pretty=True)
 
 
-CONVEX_F = [0, 0.2, 0.25, 0.33, 0.4, 0.5]
+G = [0, 0.2, 0.25, 0.33, 0.4, 0.5]
+G = [0, 0.25, 0.4]
 # CONVEX_F = [0.25]
 
-for n in [3, 4]:
-    for f in CONVEX_F:
-        create_convex_shape(f"convex{n}_factor{f}.svg", n, f)
+for n in [3, 4, 5, 6 ]:
+    for g in G:
+        create_convex_shape(f"convex{n}_factor{g}.svg", n, g)

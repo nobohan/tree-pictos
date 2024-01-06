@@ -51,18 +51,20 @@ def create_convex_shape(filename, n, f):
     circle = create_circle(dwg, CENTER, RADIUS)
     dwg.add(circle)
 
+    alpha = 2 * math.pi / n
+
     for i in range(n):
         """radius_f is the new radius used to draw a convex arc"""
         radius_f = RADIUS * math.sqrt(
-            (1 - f * math.cos(math.pi / n)) ** 2 + (f * math.sin(math.pi / n)) ** 2
+            (1 - f * math.cos(alpha / 2)) ** 2 + (f * math.sin(alpha / 2)) ** 2
         )
 
         """ drawing_angle is the angle along which the convex arc is drawn """
         drawing_angle = 2 * (
-            math.asin(f * math.sin(math.pi / n) / (radius_f / RADIUS)) + math.pi / n
+            math.asin(f * math.sin(alpha / 2) / (radius_f / RADIUS)) + alpha / 2
         )
 
-        angle_quadrant = i * (2 * math.pi / n)
+        angle_quadrant = i * alpha
 
         origin_t = (
             CENTER[0] + math.cos(angle_quadrant) * f * RADIUS,
@@ -80,8 +82,51 @@ def create_convex_shape(filename, n, f):
     dwg.save(pretty=True)
 
 
+def create_concave_shape(filename, n, f):
+    """
+    Create a shape with n concave arc, f being a concave factor. Saved in filename.
+    """
+
+    dwg = svgwrite.Drawing(filename, size=("300", "300"), profile="tiny")
+
+    circle = create_circle(dwg, CENTER, RADIUS)
+    dwg.add(circle)
+
+    alpha = 2 * math.pi / n
+
+    for i in range(n):
+        """radius_f is the new radius used to draw a concave arc"""
+        radius_f = RADIUS * math.sqrt((1 - 2 * f * math.cos(alpha / 2) + f**2))
+
+        """drawing_angle is the angle along which the concave arc is drawn"""
+        drawing_angle = 2 * math.acos(RADIUS * (f - math.cos(alpha / 2)) / radius_f)
+
+        angle_quadrant = i * alpha
+
+        origin_t = (
+            CENTER[0] + math.cos(angle_quadrant) * f * RADIUS,
+            CENTER[1] + math.sin(angle_quadrant) * f * RADIUS,
+        )
+
+        angle_start = angle_quadrant - drawing_angle / 2
+
+        concave_arc = create_arc(
+            dwg, origin_t, -radius_f, drawing_angle, angle_start, "#111"
+        )
+
+        dwg.add(concave_arc)
+
+    dwg.save(pretty=True)
+
+
 CONVEX_F = [0, 0.25, 0.4]
 
 for n in [3, 4, 5, 6]:
     for f in CONVEX_F:
         create_convex_shape(f"convex{n}_factor{f}.svg", n, f)
+
+CONCAVE_F = [2.5, 3, 4]
+
+for n in [3, 4, 5, 6]:
+    for f in CONCAVE_F:
+        create_concave_shape(f"concave{n}_factor{f}.svg", n, f)

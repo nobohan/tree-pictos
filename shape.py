@@ -4,6 +4,7 @@ import math
 CENTER = (150, 150)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
 
+
 def deg2rad(angle):
     return angle * 2 * math.pi / 360
 
@@ -51,7 +52,7 @@ def create_convex_shape(filename, n, f):
     dwg.add(circle)
 
     for i in range(n):
-        """ radius_f is the new radius used to draw a convex arc """
+        """radius_f is the new radius used to draw a convex arc"""
         radius_f = RADIUS * math.sqrt(
             (1 - f * math.cos(math.pi / n)) ** 2 + (f * math.sin(math.pi / n)) ** 2
         )
@@ -64,13 +65,15 @@ def create_convex_shape(filename, n, f):
         angle_quadrant = i * (2 * math.pi / n)
 
         origin_t = (
-                CENTER[0] + math.cos(angle_quadrant) * f * RADIUS,
-                CENTER[1] + math.sin(angle_quadrant) * f * RADIUS,
-            )
+            CENTER[0] + math.cos(angle_quadrant) * f * RADIUS,
+            CENTER[1] + math.sin(angle_quadrant) * f * RADIUS,
+        )
 
         angle_start = angle_quadrant - drawing_angle / 2
 
-        convex_arc = create_arc(dwg, origin_t, radius_f, drawing_angle, angle_start, "#111")
+        convex_arc = create_arc(
+            dwg, origin_t, radius_f, drawing_angle, angle_start, "#111"
+        )
 
         dwg.add(convex_arc)
 
@@ -79,6 +82,6 @@ def create_convex_shape(filename, n, f):
 
 CONVEX_F = [0, 0.25, 0.4]
 
-for n in [3, 4, 5, 6 ]:
+for n in [3, 4, 5, 6]:
     for f in CONVEX_F:
         create_convex_shape(f"convex{n}_factor{f}.svg", n, f)

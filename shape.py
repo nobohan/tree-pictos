@@ -6,19 +6,27 @@ RADIUS = 100  # Radius of the circle
 DOT_RADIUS = 4
 STROKE_WIDTH = 4
 
+
 def deg2rad(angle):
     return angle * 2 * math.pi / 360
 
-CHOUYA = deg2rad(2) # Small angle needed to really finish the arc
+
+CHOUYA = deg2rad(2)  # Small angle needed to really finish the arc
 
 
 def rad2deg(angle):
     return angle / 2 / math.pi * 360
 
 
-def create_circle(dwg, circle_center, circle_radius, stroke_color="#ffd42a", stroke_width=1):
+def create_circle(
+    dwg, circle_center, circle_radius, stroke_color="#ffd42a", stroke_width=1
+):
     return dwg.circle(
-        center=circle_center, r=circle_radius, fill="none", stroke=stroke_color, stroke_width=stroke_width
+        center=circle_center,
+        r=circle_radius,
+        fill="none",
+        stroke=stroke_color,
+        stroke_width=stroke_width,
     )
 
 
@@ -31,7 +39,10 @@ def move(origin, length, angle):
 
 
 def create_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
-    """Create an arc as a Path. The arc is a portion of a circle of origin 'origin' and radius 'radius', starting at angleStart and lasting until angle."""
+    """
+    Create an arc as a Path. The arc is a portion of a circle of origin 'origin'
+    and radius 'radius', starting at angleStart and lasting until angle.
+    """
     coords = []
     for a in range(1, round(rad2deg(angle))):
         c = move(origin, radius, deg2rad(a) + angleStart)
@@ -43,98 +54,93 @@ def create_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     )
 
 
-def create_convex_shape(filename, n, convexity, points=[], centroid=False):
+def convex_arc_radius(convexity, angle_quadrant):
     """
-    Create a shape with n convex arc, convexity being a convex factor. Saved in filename.
+    Compute a new radius used to draw a convex arc
+    """
+    return RADIUS * math.sqrt(
+        (1 - convexity * math.cos(angle_quadrant / 2)) ** 2
+        + (convexity * math.sin(angle_quadrant / 2)) ** 2
+    )
+
+
+def convex_drawing_angle(convexity, angle_quadrant, convex_radius):
+    """
+    Compute an angle along which the convex arc is drawn
+    """
+    return (
+        2
+        * (
+            math.asin(
+                convexity * math.sin(angle_quadrant / 2) / (convex_radius / RADIUS)
+            )
+            + angle_quadrant / 2
+        )
+        + CHOUYA
+    )
+
+
+def concave_arc_radius(concavity, angle_quadrant):
+    """
+    Compute a new radius used to draw a concave arc
+    """
+    return -RADIUS * math.sqrt(
+        (1 - 2 * concavity * math.cos(angle_quadrant / 2) + concavity**2)
+    )
+
+
+def concave_drawing_angle(concavity, angle_quadrant, concave_radius):
+    """
+    Compute an angle along which the concave arc is drawn
+    """
+    return (
+        2
+        * math.acos(
+            RADIUS * (concavity - math.cos(angle_quadrant / 2)) / concave_radius
+        )
+        + CHOUYA
+    )
+
+
+def create_broadleaved_symbol(
+    filename, n, convex_or_concave, curvity, points=None, centroid=False
+):
+    """
+    Create a broadleaved tree symbol with n convex or concave arc, curvity being a convex
+    or concave factor. Points can be added, as well as a centroid. Pictogram saved as
+    filename in svg.
     """
 
     dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="tiny")
 
-    circle = create_circle(dwg, CENTER, RADIUS)
-    dwg.add(circle)
-
-    alpha = 2 * math.pi / n
+    angle_quadrant = 2 * math.pi / n
 
     for i in range(n):
-        """radius_f is the new radius used to draw a convex arc"""
-        radius_f = RADIUS * math.sqrt(
-            (1 - convexity * math.cos(alpha / 2)) ** 2
-            + (convexity * math.sin(alpha / 2)) ** 2
-        )
+        if convex_or_concave == "convex":
+            radius = convex_arc_radius(curvity, angle_quadrant)
+            drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
+        else:
+            radius = concave_arc_radius(curvity, angle_quadrant)
+            drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
 
-        """ drawing_angle is the angle along which the convex arc is drawn """
-        drawing_angle = 2 * (
-            math.asin(convexity * math.sin(alpha / 2) / (radius_f / RADIUS)) + alpha / 2
-        ) + CHOUYA
-
-        angle_quadrant = i * alpha
+        angle_quadrant_i = i * angle_quadrant
 
         origin_t = (
-            CENTER[0] + math.cos(angle_quadrant) * convexity * RADIUS,
-            CENTER[1] + math.sin(angle_quadrant) * convexity * RADIUS,
+            CENTER[0] + math.cos(angle_quadrant_i) * curvity * RADIUS,
+            CENTER[1] + math.sin(angle_quadrant_i) * curvity * RADIUS,
         )
 
-        angle_start = angle_quadrant - drawing_angle / 2
+        angle_start = angle_quadrant_i - drawing_angle / 2
 
-        convex_arc = create_arc(
-            dwg, origin_t, radius_f, drawing_angle, angle_start, "#111"
-        )
+        arc = create_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
 
-        dwg.add(convex_arc)
+        dwg.add(arc)
 
         for p in points:
-            new_origin = move(CENTER, RADIUS * p, angle_quadrant - alpha / 2)
+            new_origin = move(CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2)
             circle = create_dot(dwg, new_origin)
             dwg.add(circle)
 
-        if centroid:
-            circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
-            dwg.add(circle)
-
-    dwg.save(pretty=True)
-
-
-#TODO factorise convex and concave functions. Externalise radius_f and drawing_angle computation
-
-def create_concave_shape(filename, n, f, points=[], centroid=False):
-    """
-    Create a shape with n concave arc, f being a concave factor. Saved in filename.
-    """
-
-    dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="tiny")
-
-    circle = create_circle(dwg, CENTER, RADIUS)
-    dwg.add(circle)
-
-    alpha = 2 * math.pi / n
-
-    for i in range(n):
-        """radius_f is the new radius used to draw a concave arc"""
-        radius_f = RADIUS * math.sqrt((1 - 2 * f * math.cos(alpha / 2) + f**2))
-
-        """drawing_angle is the angle along which the concave arc is drawn"""
-        drawing_angle = 2 * math.acos(RADIUS * (f - math.cos(alpha / 2)) / radius_f) + CHOUYA
-
-        angle_quadrant = i * alpha
-
-        origin_t = (
-            CENTER[0] + math.cos(angle_quadrant) * f * RADIUS,
-            CENTER[1] + math.sin(angle_quadrant) * f * RADIUS,
-        )
-
-        angle_start = angle_quadrant - drawing_angle / 2
-
-        concave_arc = create_arc(
-            dwg, origin_t, -radius_f, drawing_angle, angle_start, "#111"
-        )
-
-        dwg.add(concave_arc)
-
-        for p in points:
-            new_origin = move(CENTER, RADIUS * p, angle_quadrant - alpha / 2)
-            circle = create_dot(dwg, new_origin)
-            dwg.add(circle)
-        
         if centroid:
             circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
             dwg.add(circle)
@@ -143,14 +149,18 @@ def create_concave_shape(filename, n, f, points=[], centroid=False):
 
 
 N = [3, 4, 5]
-CONVEX_F = [0.25, 0.4]
+CONVEXITY = [0.25, 0.4]
 
 for n in N:
-    for f in CONVEX_F:
-        create_convex_shape(f"convex{n}_factor{f}.svg", n, f, [1.2, 1.6, 2], True)
+    for c in CONVEXITY:
+        create_broadleaved_symbol(
+            f"convex{n}_factor{c}.svg", n, "convex", c, [1.2, 1.6, 2], True
+        )
 
-CONCAVE_F = [3, 4]
+CONCAVITY = [3, 4]
 
 for n in N:
-    for f in CONCAVE_F:
-        create_concave_shape(f"concave{n}_factor{f}.svg", n, f, [1.2, 1.6, 2], True)
+    for c in CONCAVITY:
+        create_broadleaved_symbol(
+            f"concave{n}_factor{c}.svg", n, "concave", c, [1.2, 1.6, 2], True
+        )

@@ -136,10 +136,11 @@ def create_broadleaved_symbol(
 
         dwg.add(arc)
 
-        for p in points:
-            new_origin = move(CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2)
-            circle = create_dot(dwg, new_origin)
-            dwg.add(circle)
+        if points:
+            for p in points:
+                new_origin = move(CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2)
+                circle = create_dot(dwg, new_origin)
+                dwg.add(circle)
 
         if centroid:
             circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
@@ -148,19 +149,4 @@ def create_broadleaved_symbol(
     dwg.save(pretty=True)
 
 
-N = [3, 4, 5]
-CONVEXITY = [0.25, 0.4]
 
-for n in N:
-    for c in CONVEXITY:
-        create_broadleaved_symbol(
-            f"convex{n}_factor{c}.svg", n, "convex", c, [1.2, 1.6, 2], True
-        )
-
-CONCAVITY = [3, 4]
-
-for n in N:
-    for c in CONCAVITY:
-        create_broadleaved_symbol(
-            f"concave{n}_factor{c}.svg", n, "concave", c, [1.2, 1.6, 2], True
-        )

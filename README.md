@@ -3,6 +3,16 @@ tree-pictos
 
 For generating tree pictograms
 
+## Symbols syntax
+
+- B | C : Broadleaved | Coniferous
+- 0 | 3 | 4 | 5 | 6: Number of lobes
+- d^{1 | 2 | 3}_{3 | 5}: Number of dots/degrés. Optional
+- c | o : presence of a central point (c) or a central circle (o). Optional
+
+E.g.: B3d²c
+
+
 # TODO
 
 

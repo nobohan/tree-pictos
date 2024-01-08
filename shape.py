@@ -102,16 +102,78 @@ def concave_drawing_angle(concavity, angle_quadrant, concave_radius):
     )
 
 
-def create_broadleaved_symbol(
-    filename, n, convex_or_concave, curvity, points=None, centroid=False
-):
+def get_filename(leaved, curvity, n, dots, centre):
+    if leaved == "broadleaved":
+        l = "B"
+    else:
+        l = "C"
+    if curvity == "convex":
+        cu = "+"
+    else:
+        cu = "-"
+    if dots is None:
+        d = ""
+    else:
+        d = f"d{len(dots)}"
+    if centre is None:
+        c = ""
+    else:
+        c = f".{centre}"
+
+    return f"{l}{n}{cu}{d}{c}.svg"
+
+
+def get_exp(n):
+    if n == 1:
+        return chr(0x00B9)
+    elif n == 2:
+        return chr(0x00B2)
+    elif n == 3:
+        return chr(0x00B3)
+    else:
+        return ""
+
+
+def get_symbol_label(leaved, curvity, n, dots, centre):
+    if leaved == "broadleaved":
+        l = "B"
+    else:
+        l = "C"
+    if curvity == "convex":
+        cu = "+"
+    else:
+        cu = "-"
+    if dots is None:
+        d = ""
+    else:
+        d = f"d{get_exp(len(dots))}"
+    if centre is None:
+        c = ""
+    else:
+        c = f".{centre}"
+
+    return f"{l}{n}{cu}{d}{c}"
+
+
+def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None):
     """
     Create a broadleaved tree symbol with n convex or concave arc, curvity being a convex
-    or concave factor. Points can be added, as well as a centroid. Pictogram saved as
-    filename in svg.
+    or concave factor. Points can be added, as well as a centroid. The pictogram is saved
+    in svg.
     """
+    filename = get_filename(
+        "broadleaved",
+        convex_or_concave,
+        n,
+        dots,
+        centroid,
+    )
 
     dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="tiny")
+
+    symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
+    paragraph = dwg.add(dwg.g(font_size=14))
+    paragraph.add(dwg.text(symbol_label, (10, 20)))
 
     angle_quadrant = 2 * math.pi / n
 
@@ -119,7 +181,7 @@ def create_broadleaved_symbol(
         if convex_or_concave == "convex":
             radius = convex_arc_radius(curvity, angle_quadrant)
             drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
-        else:
+        elif convex_or_concave == "concave":
             radius = concave_arc_radius(curvity, angle_quadrant)
             drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
 
@@ -136,17 +198,22 @@ def create_broadleaved_symbol(
 
         dwg.add(arc)
 
-        if points:
-            for p in points:
-                new_origin = move(CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2)
-                circle = create_dot(dwg, new_origin)
-                dwg.add(circle)
+        if dots:
+            for p in dots:
+                new_origin = move(
+                    CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2
+                )
+                dot = create_dot(dwg, new_origin)
+                dwg.add(dot)
 
         if centroid:
-            circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
-            dwg.add(circle)
+            if centroid == "p":
+                point = create_dot(dwg, CENTER)
+                dwg.add(point)
+            elif centroid == "o":
+                circle = create_circle(
+                    dwg, CENTER, 10, stroke_color="#111", stroke_width=4
+                )
+                dwg.add(circle)
 
     dwg.save(pretty=True)
-
-
-

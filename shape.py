@@ -109,8 +109,10 @@ def get_filename(leaved, curvity, n, dots, centre):
         l = "C"
     if curvity == "convex":
         cu = "+"
-    else:
+    elif curvity == "concave":
         cu = "-"
+    else:
+        cu = ""
     if dots is None:
         d = ""
     else:
@@ -118,9 +120,12 @@ def get_filename(leaved, curvity, n, dots, centre):
     if centre is None:
         c = ""
     else:
-        c = f".{centre}"
+        c = f"{centre}"
 
-    return f"{l}{n}{cu}{d}{c}.svg"
+    if curvity == "circular" and n == 1:
+        return f"{l}{d}{c}.svg"
+    else:
+        return f"{l}{n}{cu}{d}{c}.svg"
 
 
 def get_exp(n):
@@ -141,8 +146,10 @@ def get_symbol_label(leaved, curvity, n, dots, centre):
         l = "C"
     if curvity == "convex":
         cu = "+"
-    else:
+    elif curvity == "concave":
         cu = "-"
+    else:
+        cu = ""
     if dots is None:
         d = ""
     else:
@@ -150,9 +157,12 @@ def get_symbol_label(leaved, curvity, n, dots, centre):
     if centre is None:
         c = ""
     else:
-        c = f".{centre}"
+        c = f"{centre}"
 
-    return f"{l}{n}{cu}{d}{c}"
+    if curvity == "circular" and n == 1:
+        return f"{l}{d}{c}"
+    else:
+        return f"{l}{n}{cu}{d}{c}"
 
 
 def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None):
@@ -169,34 +179,52 @@ def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid
         centroid,
     )
 
-    dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="tiny")
-
+    dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="full")
+    dwg.embed_font(name="Alfphabet", filename="fonts/Alfphabet-III.otf")
+    dwg.embed_stylesheet(
+        """
+    .label {
+        font-family: "Alfphabet";
+        font-size: 14;
+        font-weight: bold;
+    }"""
+    )
     symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
-    paragraph = dwg.add(dwg.g(font_size=14))
+    paragraph = dwg.add(
+        dwg.g(
+            class_="label",
+        )
+    )
     paragraph.add(dwg.text(symbol_label, (10, 20)))
 
     angle_quadrant = 2 * math.pi / n
 
     for i in range(n):
-        if convex_or_concave == "convex":
-            radius = convex_arc_radius(curvity, angle_quadrant)
-            drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
-        elif convex_or_concave == "concave":
-            radius = concave_arc_radius(curvity, angle_quadrant)
-            drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
-
         angle_quadrant_i = i * angle_quadrant
 
-        origin_t = (
-            CENTER[0] + math.cos(angle_quadrant_i) * curvity * RADIUS,
-            CENTER[1] + math.sin(angle_quadrant_i) * curvity * RADIUS,
-        )
+        if convex_or_concave == "circular":
+            circle = create_circle(
+                dwg, CENTER, RADIUS, stroke_color="#111", stroke_width=4
+            )
+            dwg.add(circle)
 
-        angle_start = angle_quadrant_i - drawing_angle / 2
+        else:
+            if convex_or_concave == "convex":
+                radius = convex_arc_radius(curvity, angle_quadrant)
+                drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
+            elif convex_or_concave == "concave":
+                radius = concave_arc_radius(curvity, angle_quadrant)
+                drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
 
-        arc = create_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
+            origin_t = (
+                CENTER[0] + math.cos(angle_quadrant_i) * curvity * RADIUS,
+                CENTER[1] + math.sin(angle_quadrant_i) * curvity * RADIUS,
+            )
 
-        dwg.add(arc)
+            angle_start = angle_quadrant_i - drawing_angle / 2
+
+            arc = create_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
+            dwg.add(arc)
 
         if dots:
             for p in dots:
@@ -206,14 +234,12 @@ def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid
                 dot = create_dot(dwg, new_origin)
                 dwg.add(dot)
 
-        if centroid:
-            if centroid == "p":
-                point = create_dot(dwg, CENTER)
-                dwg.add(point)
-            elif centroid == "o":
-                circle = create_circle(
-                    dwg, CENTER, 10, stroke_color="#111", stroke_width=4
-                )
-                dwg.add(circle)
+    if centroid:
+        if centroid == "p":
+            point = create_dot(dwg, CENTER)
+            dwg.add(point)
+        elif centroid == "o":
+            circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
+            dwg.add(circle)
 
     dwg.save(pretty=True)

@@ -11,6 +11,13 @@ dot3 = 2
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 CENTRE = (None, "p", "o")
 
+for c in CENTRE:
+    create_broadleaved_symbol(1, "circular", 0, None, c)
+
+for n in (3, 5):
+    for d in DOTS[1:4]:
+        for c in CENTRE:
+            create_broadleaved_symbol(n, "circular", 0, d, c)
 
 for n in N:
     for d in DOTS:

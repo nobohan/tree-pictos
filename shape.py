@@ -18,7 +18,7 @@ def rad2deg(angle):
     return angle / 2 / math.pi * 360
 
 
-def create_circle(
+def draw_circle(
     dwg, circle_center, circle_radius, stroke_color="#ffd42a", stroke_width=1
 ):
     return dwg.circle(
@@ -30,7 +30,7 @@ def create_circle(
     )
 
 
-def create_dot(dwg, circle_center, circle_radius=DOT_RADIUS, color="#111"):
+def draw_dot(dwg, circle_center, circle_radius=DOT_RADIUS, color="#111"):
     return dwg.circle(center=circle_center, r=circle_radius, fill=color, stroke=color)
 
 
@@ -38,7 +38,7 @@ def move(origin, length, angle):
     return (origin[0] + length * math.cos(angle), origin[1] + length * math.sin(angle))
 
 
-def create_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
+def draw_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     """
     Create an arc as a Path. The arc is a portion of a circle of origin 'origin'
     and radius 'radius', starting at angleStart and lasting until angle.
@@ -165,6 +165,74 @@ def get_symbol_label(leaved, curvity, n, dots, centre):
         return f"{l}{n}{cu}{d}{c}"
 
 
+def draw_broadleaved_symbol(
+    dwg, center, n, convex_or_concave, curvity, dots=None, centroid=None
+):
+    """
+    Draw a broadleaved tree symbol with n convex or concave arc, curvity being a convex
+    or concave factor. Points can be added, as well as a centroid. Returns the drawing
+    svgwrite object.
+    """
+    symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
+    paragraph = dwg.add(
+        dwg.g(
+            class_="label",
+        )
+    )
+    paragraph.add(dwg.text(symbol_label, (center[0] - 240, center[1] - 230)))
+
+    angle_quadrant = 2 * math.pi / n
+
+    has_drawn_circle = False
+
+    for i in range(n):
+        angle_quadrant_i = i * angle_quadrant
+
+        if convex_or_concave == "circular":
+            if not has_drawn_circle:
+                circle = draw_circle(
+                    dwg, center, RADIUS, stroke_color="#111", stroke_width=4
+                )
+                dwg.add(circle)
+                has_drawn_circle = True
+
+        else:
+            if convex_or_concave == "convex":
+                radius = convex_arc_radius(curvity, angle_quadrant)
+                drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
+            elif convex_or_concave == "concave":
+                radius = concave_arc_radius(curvity, angle_quadrant)
+                drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
+
+            origin_t = (
+                center[0] + math.cos(angle_quadrant_i) * curvity * RADIUS,
+                center[1] + math.sin(angle_quadrant_i) * curvity * RADIUS,
+            )
+
+            angle_start = angle_quadrant_i - drawing_angle / 2
+
+            arc = draw_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
+            dwg.add(arc)
+
+        if dots:
+            for p in dots:
+                new_origin = move(
+                    center, RADIUS * p, angle_quadrant_i - angle_quadrant / 2
+                )
+                dot = draw_dot(dwg, new_origin)
+                dwg.add(dot)
+
+    if centroid:
+        if centroid == "p":
+            point = draw_dot(dwg, center)
+            dwg.add(point)
+        elif centroid == "o":
+            circle = draw_circle(dwg, center, 10, stroke_color="#111", stroke_width=4)
+            dwg.add(circle)
+
+    return dwg
+
+
 def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None):
     """
     Create a broadleaved tree symbol with n convex or concave arc, curvity being a convex
@@ -189,57 +257,9 @@ def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid
         font-weight: bold;
     }"""
     )
-    symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
-    paragraph = dwg.add(
-        dwg.g(
-            class_="label",
-        )
+
+    dwg = draw_broadleaved_symbol(
+        dwg, CENTER, n, convex_or_concave, curvity, dots, centroid
     )
-    paragraph.add(dwg.text(symbol_label, (10, 20)))
-
-    angle_quadrant = 2 * math.pi / n
-
-    for i in range(n):
-        angle_quadrant_i = i * angle_quadrant
-
-        if convex_or_concave == "circular":
-            circle = create_circle(
-                dwg, CENTER, RADIUS, stroke_color="#111", stroke_width=4
-            )
-            dwg.add(circle)
-
-        else:
-            if convex_or_concave == "convex":
-                radius = convex_arc_radius(curvity, angle_quadrant)
-                drawing_angle = convex_drawing_angle(curvity, angle_quadrant, radius)
-            elif convex_or_concave == "concave":
-                radius = concave_arc_radius(curvity, angle_quadrant)
-                drawing_angle = concave_drawing_angle(curvity, angle_quadrant, -radius)
-
-            origin_t = (
-                CENTER[0] + math.cos(angle_quadrant_i) * curvity * RADIUS,
-                CENTER[1] + math.sin(angle_quadrant_i) * curvity * RADIUS,
-            )
-
-            angle_start = angle_quadrant_i - drawing_angle / 2
-
-            arc = create_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
-            dwg.add(arc)
-
-        if dots:
-            for p in dots:
-                new_origin = move(
-                    CENTER, RADIUS * p, angle_quadrant_i - angle_quadrant / 2
-                )
-                dot = create_dot(dwg, new_origin)
-                dwg.add(dot)
-
-    if centroid:
-        if centroid == "p":
-            point = create_dot(dwg, CENTER)
-            dwg.add(point)
-        elif centroid == "o":
-            circle = create_circle(dwg, CENTER, 10, stroke_color="#111", stroke_width=4)
-            dwg.add(circle)
 
     dwg.save(pretty=True)

@@ -5,6 +5,7 @@ CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
 DOT_RADIUS = 4
 STROKE_WIDTH = 4
+BRANCH_LENGTH = 50
 
 
 def deg2rad(angle):
@@ -38,9 +39,21 @@ def move(origin, length, angle):
     return (origin[0] + length * math.cos(angle), origin[1] + length * math.sin(angle))
 
 
+def draw_line(dwg, start_point, end_point, strokeColor="#555"):
+    """
+    Draw a line from a start_point to an end_point
+    """
+    coords = [start_point, end_point]
+
+    path_data = f"M {' '.join([f'{x},{y}' for x, y in coords])}"
+    return dwg.path(
+        d=path_data, fill="none", stroke=strokeColor, stroke_width=STROKE_WIDTH
+    )
+
+
 def draw_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     """
-    Create an arc as a Path. The arc is a portion of a circle of origin 'origin'
+    Draw an arc as a Path. The arc is a portion of a circle of origin 'origin'
     and radius 'radius', starting at angleStart and lasting until angle.
     """
     coords = []
@@ -52,6 +65,21 @@ def draw_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     return dwg.path(
         d=path_data, fill="none", stroke=strokeColor, stroke_width=STROKE_WIDTH
     )
+
+
+def draw_branch(dwg, origin, angle_main_branch, position):
+    """
+    Draw some branches starting from a origin point, orthogonally from the angle_main_branch
+    """
+
+    # start_point = move(origin, BRANCH_LENGTH * position, angle_main_branch + math.pi / 4)
+    # end_point = move(origin, BRANCH_LENGTH * position, angle_main_branch - math.pi / 4)
+
+    start_point = move(origin, BRANCH_LENGTH * position, angle_main_branch)
+    end_point = move(origin, BRANCH_LENGTH * position, angle_main_branch - math.pi / 4)
+
+    line = draw_line(dwg, start_point, end_point)
+    return line
 
 
 def convex_arc_radius(convexity, angle_quadrant):
@@ -179,7 +207,7 @@ def draw_broadleaved_symbol(
             class_="label",
         )
     )
-    paragraph.add(dwg.text(symbol_label, (center[0] - 240, center[1] - 230)))
+    paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
 
     angle_quadrant = 2 * math.pi / n
 
@@ -233,6 +261,49 @@ def draw_broadleaved_symbol(
     return dwg
 
 
+def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
+    """
+    Draw a needle-leaved tree symbol with n spikes.
+    Branches can be added, as well as a centroid. Returns the drawing
+    svgwrite object.
+    """
+
+    circle = draw_circle(dwg, center, RADIUS, stroke_color="#111", stroke_width=4)
+    dwg.add(circle)
+
+    angle_quadrant = 2 * math.pi / n
+
+    for i in range(n):
+        angle_quadrant_i = i * angle_quadrant + math.pi / n
+        start_point = move(center, RADIUS, angle_quadrant_i)
+        end_point = move(center, RADIUS * 2.2, angle_quadrant_i)
+        line = draw_line(dwg, start_point, end_point)
+        dwg.add(line)
+
+        if branches:
+            position = 3
+            for b in branches:
+                new_origin = move(center, RADIUS * b, angle_quadrant_i)
+
+                dot = draw_dot(dwg, new_origin)
+                dwg.add(dot)
+
+                branch = draw_branch(dwg, new_origin, angle_quadrant_i, position)
+                dwg.add(branch)
+
+                position = position - 1
+
+    if centroid:
+        if centroid == "p":
+            point = draw_dot(dwg, center)
+            dwg.add(point)
+        elif centroid == "o":
+            circle = draw_circle(dwg, center, 10, stroke_color="#111", stroke_width=4)
+            dwg.add(circle)
+
+    return dwg
+
+
 def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None):
     """
     Create a broadleaved tree symbol with n convex or concave arc, curvity being a convex
@@ -261,5 +332,30 @@ def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid
     dwg = draw_broadleaved_symbol(
         dwg, CENTER, n, convex_or_concave, curvity, dots, centroid
     )
+
+    dwg.save(pretty=True)
+
+
+def create_needleleaved_symbol(n, branches=None, centroid=None):
+    filename = get_filename(
+        "needleleaved",
+        "",
+        n,
+        branches,
+        centroid,
+    )
+
+    dwg = svgwrite.Drawing(filename, size=("500", "500"), profile="full")
+    dwg.embed_font(name="Alfphabet", filename="fonts/Alfphabet-III.otf")
+    dwg.embed_stylesheet(
+        """
+    .label {
+        font-family: "Alfphabet";
+        font-size: 14;
+        font-weight: bold;
+    }"""
+    )
+
+    dwg = draw_needleleaved_symbol(dwg, CENTER, n, branches, centroid)
 
     dwg.save(pretty=True)

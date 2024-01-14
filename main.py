@@ -1,4 +1,4 @@
-from shape import create_broadleaved_symbol
+from shape import create_broadleaved_symbol, create_needleleaved_symbol
 
 N = (3, 4, 5)
 
@@ -25,3 +25,8 @@ for n in N:
         for c in CENTRE:
             create_broadleaved_symbol(n, "convex", convexity, d, c)
             create_broadleaved_symbol(n, "concave", concavity, d, c)
+
+for n in N:
+    for branch in DOTS[1:4]:
+        for c in CENTRE:
+            create_needleleaved_symbol(n, branch, c)

@@ -10,6 +10,12 @@ dot2 = 1.6
 dot3 = 2
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 
+b1 = 1.4
+b2 = 1.8
+b3 = 2.2
+BRANCHES = (None, [b1], [b1, b2], [b1, b2, b3])
+
+
 CENTRE = (None, "p", "o")
 
 for c in CENTRE:
@@ -27,6 +33,9 @@ for n in N:
             create_broadleaved_symbol(n, "concave", concavity, d, c)
 
 for n in N:
-    for branch in DOTS[1:4]:
+    for branch in BRANCHES:
         for c in CENTRE:
             create_needleleaved_symbol(n, branch, c)
+
+
+#create_needleleaved_symbol(3, [1], None)

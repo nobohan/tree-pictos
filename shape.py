@@ -5,7 +5,9 @@ CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
 DOT_RADIUS = 4
 STROKE_WIDTH = 4
-BRANCH_LENGTH = 50
+#MAIN_BRANCH_LENGTH = 0.5 * RADIUS
+MAIN_BRANCH_START_LENGTH = 30
+BRANCH_LENGTH = 20
 
 
 def deg2rad(angle):
@@ -67,16 +69,13 @@ def draw_arc(dwg, origin, radius, angle, angleStart, strokeColor="#555"):
     )
 
 
-def draw_branch(dwg, origin, angle_main_branch, position):
+def draw_branch(dwg, origin, angle_main_branch, branch_length):
     """
     Draw some branches starting from a origin point, orthogonally from the angle_main_branch
     """
 
-    # start_point = move(origin, BRANCH_LENGTH * position, angle_main_branch + math.pi / 4)
-    # end_point = move(origin, BRANCH_LENGTH * position, angle_main_branch - math.pi / 4)
-
-    start_point = move(origin, BRANCH_LENGTH * position, angle_main_branch)
-    end_point = move(origin, BRANCH_LENGTH * position, angle_main_branch - math.pi / 4)
+    start_point = move(origin, branch_length, angle_main_branch + math.pi / 2)
+    end_point = move(origin, branch_length, angle_main_branch - math.pi / 2)
 
     line = draw_line(dwg, start_point, end_point)
     return line
@@ -275,23 +274,25 @@ def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
 
     for i in range(n):
         angle_quadrant_i = i * angle_quadrant + math.pi / n
+        if branches:
+            print(len(branches))
+        main_branch_length = MAIN_BRANCH_START_LENGTH + (BRANCH_LENGTH * len(branches) * 2 if branches else 1) #TODO should be based on branches values!
         start_point = move(center, RADIUS, angle_quadrant_i)
-        end_point = move(center, RADIUS * 2.2, angle_quadrant_i)
+        end_point = move(center, RADIUS + main_branch_length, angle_quadrant_i)
         line = draw_line(dwg, start_point, end_point)
         dwg.add(line)
 
         if branches:
-            position = 3
+            position = len(branches)
+            ib = 1
             for b in branches:
                 new_origin = move(center, RADIUS * b, angle_quadrant_i)
 
-                dot = draw_dot(dwg, new_origin)
-                dwg.add(dot)
-
-                branch = draw_branch(dwg, new_origin, angle_quadrant_i, position)
+                branch = draw_branch(dwg, new_origin, angle_quadrant_i, position * BRANCH_LENGTH)
                 dwg.add(branch)
 
                 position = position - 1
+                ib = ib + 1
 
     if centroid:
         if centroid == "p":

@@ -4,7 +4,7 @@ import math
 CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
 DOT_RADIUS = 8
-STROKE_WIDTH = 8
+STROKE_WIDTH = 10
 MAIN_BRANCH_START_LENGTH = 0.75 * RADIUS
 BRANCH_LENGTH = 20
 STROKE_COLOR = "#09711c"

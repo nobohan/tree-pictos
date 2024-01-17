@@ -1,7 +1,7 @@
 from shape import draw_broadleaved_symbol, draw_needleleaved_symbol, get_symbol_label
 import svgwrite
 
-convexity = 0.3
+convexity = 0.5
 concavity = 3
 
 dot1 = 1.2

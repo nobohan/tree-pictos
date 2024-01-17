@@ -16,6 +16,10 @@ E.g.: B3d²c
 
 # TODO
 
+- faire une table de mapping espèce-symbol
+- pouvoir ecrire le nom de l'espece dans le nom du fichier et sur le svg
+
+
 
 https://www.w3.org/TR/SVG11/paths.html#PathDataCubicBezierCommands
 

@@ -1,4 +1,4 @@
-from shape import draw_broadleaved_symbol, get_symbol_label
+from shape import draw_broadleaved_symbol, draw_needleleaved_symbol, get_symbol_label
 import svgwrite
 
 convexity = 0.3
@@ -9,11 +9,16 @@ dot2 = 1.6
 dot3 = 2
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 
+b1 = 1.4
+b2 = 1.8
+b3 = 2.2
+BRANCHES = (None, [b1], [b1, b2], [b1, b2, b3])
+
 CENTRE = (None, "p", "o")
 
 filename = "tree-symbols.svg"
 
-dwg = svgwrite.Drawing(filename, size=("6500", "5000"), profile="full")
+dwg = svgwrite.Drawing(filename, size=("6000", "5500"), profile="full")
 dwg.embed_font(name="Alfphabet", filename="fonts/Alfphabet-III.otf")
 dwg.embed_stylesheet(
     """
@@ -25,7 +30,7 @@ dwg.embed_stylesheet(
 )
 
 X = list(range(250, 6250, 500))
-Y = list(range(250, 5250, 500))
+Y = list(range(250, 6250, 500))
 
 ii = 0
 ORIGINS = ((X[0], Y[0]), (X[4], Y[0]), (X[8], Y[0]))
@@ -71,6 +76,17 @@ for n in (3, 4, 5):
     for c in CENTRE:
         for d in DOTS[1:4]:
             dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "concave", concavity, d, c)
+            ii = ii + 1
+
+
+for n in (3, 4, 5):
+    ii = 0
+    ORIGINS = (
+        (X[0], Y[n+5]), (X[1], Y[n+5]), (X[2], Y[n+5]), (X[3], Y[n+5]), (X[4], Y[n+5]), (X[5], Y[n+5]), (X[6], Y[n+5]), (X[7], Y[n+5]), (X[8], Y[n+5]), (X[9], Y[n+5]), (X[10], Y[n+5]), (X[11], Y[n+5])
+    )
+    for c in CENTRE:
+        for branch in BRANCHES:
+            draw_needleleaved_symbol(dwg, ORIGINS[ii], n, branch, c)
             ii = ii + 1
 
 

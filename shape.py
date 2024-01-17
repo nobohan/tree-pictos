@@ -3,11 +3,11 @@ import math
 
 CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
-DOT_RADIUS = 4
-STROKE_WIDTH = 4
-#MAIN_BRANCH_LENGTH = 0.5 * RADIUS
-MAIN_BRANCH_START_LENGTH = 30
+DOT_RADIUS = 8
+STROKE_WIDTH = 8
+MAIN_BRANCH_START_LENGTH = 0.75 * RADIUS
 BRANCH_LENGTH = 20
+STROKE_COLOR = "#09711c"
 
 
 def deg2rad(angle):
@@ -22,7 +22,7 @@ def rad2deg(angle):
 
 
 def draw_circle(
-    dwg, circle_center, circle_radius, stroke_color="#ffd42a", stroke_width=1
+    dwg, circle_center, circle_radius, stroke_color="#ffd42a", stroke_width=STROKE_WIDTH
 ):
     return dwg.circle(
         center=circle_center,
@@ -33,7 +33,7 @@ def draw_circle(
     )
 
 
-def draw_dot(dwg, circle_center, circle_radius=DOT_RADIUS, color="#111"):
+def draw_dot(dwg, circle_center, circle_radius=DOT_RADIUS, color=STROKE_COLOR):
     return dwg.circle(center=circle_center, r=circle_radius, fill=color, stroke=color)
 
 
@@ -41,7 +41,7 @@ def move(origin, length, angle):
     return (origin[0] + length * math.cos(angle), origin[1] + length * math.sin(angle))
 
 
-def draw_line(dwg, start_point, end_point, strokeColor="#555"):
+def draw_line(dwg, start_point, end_point, strokeColor=STROKE_COLOR):
     """
     Draw a line from a start_point to an end_point
     """
@@ -217,9 +217,7 @@ def draw_broadleaved_symbol(
 
         if convex_or_concave == "circular":
             if not has_drawn_circle:
-                circle = draw_circle(
-                    dwg, center, RADIUS, stroke_color="#111", stroke_width=4
-                )
+                circle = draw_circle(dwg, center, RADIUS, stroke_color=STROKE_COLOR)
                 dwg.add(circle)
                 has_drawn_circle = True
 
@@ -238,7 +236,9 @@ def draw_broadleaved_symbol(
 
             angle_start = angle_quadrant_i - drawing_angle / 2
 
-            arc = draw_arc(dwg, origin_t, radius, drawing_angle, angle_start, "#111")
+            arc = draw_arc(
+                dwg, origin_t, radius, drawing_angle, angle_start, STROKE_COLOR
+            )
             dwg.add(arc)
 
         if dots:
@@ -254,7 +254,7 @@ def draw_broadleaved_symbol(
             point = draw_dot(dwg, center)
             dwg.add(point)
         elif centroid == "o":
-            circle = draw_circle(dwg, center, 10, stroke_color="#111", stroke_width=4)
+            circle = draw_circle(dwg, center, 16, stroke_color=STROKE_COLOR)
             dwg.add(circle)
 
     return dwg
@@ -267,28 +267,44 @@ def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
     svgwrite object.
     """
 
-    circle = draw_circle(dwg, center, RADIUS, stroke_color="#111", stroke_width=4)
+    symbol_label = get_symbol_label("needleleaved", None, n, branches, centroid)
+    paragraph = dwg.add(
+        dwg.g(
+            class_="label",
+        )
+    )
+    paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
+
+
+    circle = draw_circle(dwg, center, RADIUS, stroke_color=STROKE_COLOR)
     dwg.add(circle)
 
     angle_quadrant = 2 * math.pi / n
 
     for i in range(n):
         angle_quadrant_i = i * angle_quadrant + math.pi / n
+
+        # draw main branch
         if branches:
-            print(len(branches))
-        main_branch_length = MAIN_BRANCH_START_LENGTH + (BRANCH_LENGTH * len(branches) * 2 if branches else 1) #TODO should be based on branches values!
+            main_branch_length = RADIUS * (branches[-1] - 1) + 2 * BRANCH_LENGTH
+        else:
+            main_branch_length = MAIN_BRANCH_START_LENGTH
+
         start_point = move(center, RADIUS, angle_quadrant_i)
         end_point = move(center, RADIUS + main_branch_length, angle_quadrant_i)
         line = draw_line(dwg, start_point, end_point)
         dwg.add(line)
 
+        # draw sub-branches
         if branches:
             position = len(branches)
             ib = 1
             for b in branches:
                 new_origin = move(center, RADIUS * b, angle_quadrant_i)
 
-                branch = draw_branch(dwg, new_origin, angle_quadrant_i, position * BRANCH_LENGTH)
+                branch = draw_branch(
+                    dwg, new_origin, angle_quadrant_i, position * BRANCH_LENGTH
+                )
                 dwg.add(branch)
 
                 position = position - 1
@@ -299,7 +315,7 @@ def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
             point = draw_dot(dwg, center)
             dwg.add(point)
         elif centroid == "o":
-            circle = draw_circle(dwg, center, 10, stroke_color="#111", stroke_width=4)
+            circle = draw_circle(dwg, center, 16, stroke_color=STROKE_COLOR)
             dwg.add(circle)
 
     return dwg

@@ -36,6 +36,3 @@ for n in N:
     for branch in BRANCHES:
         for c in CENTRE:
             create_needleleaved_symbol(n, branch, c)
-
-
-#create_needleleaved_symbol(3, [1], None)

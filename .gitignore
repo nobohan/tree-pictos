@@ -1,2 +1,3 @@
 *.svg
+species/*.svg
 __pycache__

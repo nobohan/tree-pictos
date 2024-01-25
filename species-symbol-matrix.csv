@@ -1,0 +1,22 @@
+,,d1,d2,d3,p,d1p,d2p,d3p,o,d1o,d2o,d3o
+B3,Fagus sylvatica,Carpinus betulus,Tilia cordata,Tilia platyphyllos,Fraxinus excelsior,,,Robinia pseudoacacia,,,,
+B5,/,Corylus avellana,Ulmus sp.,Castanea sativa,/,,,,/,,,
+B3+,Salix sp.,,,,,,,,,,,
+B4+,Malus domestica,Prunus avium,Pyrus communis,Crataegus monogyna,Sorbus aucuparia,,,,,,,
+B5+,Quercus sp.,Quercus robur,Quercus petrea,Quercus rubra,Juglans regia,Juglans nigra,,,,,,
+B3-,Populus sp.,Populus canadensis,Populus tremula,,,,,,,,,
+B4-,Betula sp.,,,,,,,,Alnus glutinosa,,,
+B5-,Acer sp.,Acer campestre,Acer pseudoplatanus,Acer platanoides,Aesculus hippocastanum,,,,Platanus sp.,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,d1,d2,d3,p,d1p,d2p,d3p,o,d1o,d2o,d3o
+B3,B,B3d1,B3d2,B3d3,Bp,B3d1p,B3d2p,B3d3p,Bo,B3d1o,B3d2o,B3d3o
+B5,,B5d1,B5d2,B5d3,,B5d1p,B5d2p,B5d3p,,B5d1o,B5d2o,B5d3o
+B3+,B3+,B3+d1,B3+d2,B3+d3,B3+p,B3+d1p,B3+d2p,B3+d3p,B3+o,B3+d1o,B3+d2o,B3+d3o
+B4+,B4+,B4+d1,B4+d2,B4+d3,B4+p,B4+d1p,B4+d2p,B4+d3p,B4+o,B4+d1o,B4+d2o,B4+d3o
+B5+,B5+,B5+d1,B5+d2,B5+d3,B5+p,B5+d1p,B5+d2p,B5+d3p,B5+o,B5+d1o,B5+d2o,B5+d3o
+B3-,B3-,B3-d1,B3-d2,B3-d3,B3-p,B3-d1p,B3-d2p,B3-d3p,B3-o,B3-d1o,B3-d2o,B3-d3o
+B4-,B4-,B4-d1,B4-d2,B4-d3,B4-p,B4-d1p,B4-d2p,B4-d3p,B4-o,B4-d1o,B4-d2o,B4-d3o
+B5-,B5-,B5-d1,B5-d2,B5-d3,B5-p,B5-d1p,B5-d2p,B5-d3p,B5-o,B5-d1o,B5-d2o,B5-d3o

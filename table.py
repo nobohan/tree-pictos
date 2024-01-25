@@ -16,7 +16,7 @@ BRANCHES = (None, [b1], [b1, b2], [b1, b2, b3])
 
 CENTRE = (None, "p", "o")
 
-filename = "tree-symbols.svg"
+filename = "symbols-table.svg"
 
 dwg = svgwrite.Drawing(filename, size=("6000", "5500"), profile="full")
 dwg.embed_font(name="Alfphabet", filename="fonts/Alfphabet-III.otf")

@@ -1,7 +1,7 @@
 tree-pictos
 ============
 
-For generating tree pictograms
+Some Python script for generating tree pictograms.
 
 ## Symbols syntax
 

@@ -3,8 +3,9 @@ import math
 
 CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
-DOT_RADIUS = 8
-STROKE_WIDTH = 10
+DOT_RADIUS = 14
+O_RADIUS = 22
+STROKE_WIDTH = 24
 MAIN_BRANCH_START_LENGTH = 0.75 * RADIUS
 BRANCH_LENGTH = 20
 STROKE_COLOR = "#09711c"
@@ -193,20 +194,21 @@ def get_symbol_label(leaved, curvity, n, dots, centre):
 
 
 def draw_broadleaved_symbol(
-    dwg, center, n, convex_or_concave, curvity, dots=None, centroid=None
+    dwg, center, n, convex_or_concave, curvity, dots=None, centroid=None, label=False
 ):
     """
     Draw a broadleaved tree symbol with n convex or concave arc, curvity being a convex
     or concave factor. Points can be added, as well as a centroid. Returns the drawing
     svgwrite object.
     """
-    symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
-    paragraph = dwg.add(
-        dwg.g(
-            class_="label",
+    if label:
+        symbol_label = get_symbol_label("broadleaved", convex_or_concave, n, dots, centroid)
+        paragraph = dwg.add(
+            dwg.g(
+                class_="label",
+            )
         )
-    )
-    paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
+        paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
 
     angle_quadrant = 2 * math.pi / n
 
@@ -254,26 +256,26 @@ def draw_broadleaved_symbol(
             point = draw_dot(dwg, center)
             dwg.add(point)
         elif centroid == "o":
-            circle = draw_circle(dwg, center, 16, stroke_color=STROKE_COLOR)
+            circle = draw_circle(dwg, center, O_RADIUS, stroke_color=STROKE_COLOR)
             dwg.add(circle)
 
     return dwg
 
 
-def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
+def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None, label=False):
     """
     Draw a needle-leaved tree symbol with n spikes.
     Branches can be added, as well as a centroid. Returns the drawing
     svgwrite object.
     """
-
-    symbol_label = get_symbol_label("needleleaved", None, n, branches, centroid)
-    paragraph = dwg.add(
-        dwg.g(
-            class_="label",
+    if label:
+        symbol_label = get_symbol_label("needleleaved", None, n, branches, centroid)
+        paragraph = dwg.add(
+            dwg.g(
+                class_="label",
+            )
         )
-    )
-    paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
+        paragraph.add(dwg.text(symbol_label, (center[0] - 10, center[1] - 180)))
 
 
     circle = draw_circle(dwg, center, RADIUS, stroke_color=STROKE_COLOR)
@@ -315,13 +317,13 @@ def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None):
             point = draw_dot(dwg, center)
             dwg.add(point)
         elif centroid == "o":
-            circle = draw_circle(dwg, center, 16, stroke_color=STROKE_COLOR)
+            circle = draw_circle(dwg, center, O_RADIUS, stroke_color=STROKE_COLOR)
             dwg.add(circle)
 
     return dwg
 
 
-def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None):
+def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid=None, label=False):
     """
     Create a broadleaved tree symbol with n convex or concave arc, curvity being a convex
     or concave factor. Points can be added, as well as a centroid. The pictogram is saved
@@ -347,13 +349,13 @@ def create_broadleaved_symbol(n, convex_or_concave, curvity, dots=None, centroid
     )
 
     dwg = draw_broadleaved_symbol(
-        dwg, CENTER, n, convex_or_concave, curvity, dots, centroid
+        dwg, CENTER, n, convex_or_concave, curvity, dots, centroid, label
     )
 
     dwg.save(pretty=True)
 
 
-def create_needleleaved_symbol(n, branches=None, centroid=None):
+def create_needleleaved_symbol(n, branches=None, centroid=None, label=False):
     filename = get_filename(
         "needleleaved",
         "",
@@ -373,6 +375,6 @@ def create_needleleaved_symbol(n, branches=None, centroid=None):
     }"""
     )
 
-    dwg = draw_needleleaved_symbol(dwg, CENTER, n, branches, centroid)
+    dwg = draw_needleleaved_symbol(dwg, CENTER, n, branches, centroid, label)
 
     dwg.save(pretty=True)

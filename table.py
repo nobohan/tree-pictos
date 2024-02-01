@@ -1,12 +1,12 @@
 from shape import draw_broadleaved_symbol, draw_needleleaved_symbol, get_symbol_label
 import svgwrite
 
-convexity = 0.5
+BASE_CONVEXITY = 0.3
 concavity = 3
 
-dot1 = 1.2
-dot2 = 1.6
-dot3 = 2
+dot1 = 1.4
+dot2 = 1.8
+dot3 = 2.2
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 
 b1 = 1.4
@@ -35,7 +35,7 @@ Y = list(range(250, 6250, 500))
 ii = 0
 ORIGINS = ((X[0], Y[0]), (X[4], Y[0]), (X[8], Y[0]))
 for c in CENTRE:
-    dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], 1, "circular", 0, None, c)
+    dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], 1, "circular", 0, None, c, True)
     ii = ii + 1
 
 
@@ -47,35 +47,36 @@ ORIGINS = (
 for n in (3, 5):
     for c in CENTRE:
         for d in DOTS[1:4]:
-            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "circular", 0, d, c)
+            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "circular", 0, d, c, True)
             ii = ii + 1
 
 
 for n in (3, 4, 5):
-    dwg = draw_broadleaved_symbol(dwg, (X[0], Y[n-1]), n, "convex", convexity, None, None)
-    dwg = draw_broadleaved_symbol(dwg, (X[4], Y[n-1]), n, "convex", convexity, None, "p")
-    dwg = draw_broadleaved_symbol(dwg, (X[8], Y[n-1]), n, "convex", convexity, None, "o")
+    convexity = BASE_CONVEXITY + n / 10
+    dwg = draw_broadleaved_symbol(dwg, (X[0], Y[n-1]), n, "convex", convexity, None, None, True)
+    dwg = draw_broadleaved_symbol(dwg, (X[4], Y[n-1]), n, "convex", convexity, None, "p", True)
+    dwg = draw_broadleaved_symbol(dwg, (X[8], Y[n-1]), n, "convex", convexity, None, "o", True)
     ii = 0
     ORIGINS = (
         (X[1], Y[n-1]), (X[2], Y[n-1]), (X[3], Y[n-1]), (X[5], Y[n-1]), (X[6], Y[n-1]), (X[7], Y[n-1]), (X[9], Y[n-1]), (X[10], Y[n-1]), (X[11], Y[n-1])
     )
     for c in CENTRE:
         for d in DOTS[1:4]:
-            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "convex", convexity, d, c)
+            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "convex", convexity, d, c, True)
             ii = ii + 1
 
 
 for n in (3, 4, 5):
-    dwg = draw_broadleaved_symbol(dwg, (X[0], Y[n+2]), n, "concave", concavity, None, None)
-    dwg = draw_broadleaved_symbol(dwg, (X[4], Y[n+2]), n, "concave", concavity, None, "p")
-    dwg = draw_broadleaved_symbol(dwg, (X[8], Y[n+2]), n, "concave", concavity, None, "o")
+    dwg = draw_broadleaved_symbol(dwg, (X[0], Y[n+2]), n, "concave", concavity, None, None, True)
+    dwg = draw_broadleaved_symbol(dwg, (X[4], Y[n+2]), n, "concave", concavity, None, "p", True)
+    dwg = draw_broadleaved_symbol(dwg, (X[8], Y[n+2]), n, "concave", concavity, None, "o", True)
     ii = 0
     ORIGINS = (
         (X[1], Y[n+2]), (X[2], Y[n+2]), (X[3], Y[n+2]), (X[5], Y[n+2]), (X[6], Y[n+2]), (X[7], Y[n+2]), (X[9], Y[n+2]), (X[10], Y[n+2]), (X[11], Y[n+2])
     )
     for c in CENTRE:
         for d in DOTS[1:4]:
-            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "concave", concavity, d, c)
+            dwg = draw_broadleaved_symbol(dwg, ORIGINS[ii], n, "concave", concavity, d, c, True)
             ii = ii + 1
 
 
@@ -86,7 +87,7 @@ for n in (3, 4, 5):
     )
     for c in CENTRE:
         for branch in BRANCHES:
-            draw_needleleaved_symbol(dwg, ORIGINS[ii], n, branch, c)
+            draw_needleleaved_symbol(dwg, ORIGINS[ii], n, branch, c, True)
             ii = ii + 1
 
 

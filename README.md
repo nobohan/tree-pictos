@@ -36,6 +36,6 @@ The script `species.py` makes a svg file for each symbol from the matrix with th
 
 # TODO
 
-- pouvoir ecrire le nom de l'espece dans le nom du fichier et sur le svg
+- coniferous species
 
 

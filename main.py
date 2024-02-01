@@ -2,12 +2,12 @@ from shape import create_broadleaved_symbol, create_needleleaved_symbol
 
 N = (3, 4, 5)
 
-convexity = 0.3
+BASE_CONVEXITY = 0.3
 concavity = 3
 
-dot1 = 1.2
-dot2 = 1.6
-dot3 = 2
+dot1 = 1.4
+dot2 = 1.8
+dot3 = 2.2
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 
 b1 = 1.4
@@ -29,6 +29,7 @@ for n in (3, 5):
 for n in N:
     for d in DOTS:
         for c in CENTRE:
+            convexity = BASE_CONVEXITY + n / 10
             create_broadleaved_symbol(n, "convex", convexity, d, c)
             create_broadleaved_symbol(n, "concave", concavity, d, c)
 

@@ -1,7 +1,7 @@
 import csv
 import shutil
 
-prefix = ["B3", "B5", "B3+", "B4+", "B5+", "B3-", "B4-", "B5-"]
+prefix = ["B3", "B5", "B3+", "B4+", "B5+", "B3-", "B4-", "B5-", "C3", "C4", "C5"]
 suffix = ["", "d1", "d2", "d3", "p", "d1p", "d2p", "d3p", "o", "d1o", "d2o", "d3o"]
 
 with open("species-symbol-matrix.csv", newline="") as csvfile:

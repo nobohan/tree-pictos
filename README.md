@@ -1,7 +1,7 @@
 tree-pictos
 ============
 
-Some Python script for generating tree pictograms.
+Some Python scripts for generating tree pictograms.
 
 ## Symbols syntax
 
@@ -9,9 +9,9 @@ Some Python script for generating tree pictograms.
 - 0 | 3 | 4 | 5 | 6: Number of lobes and dots around the symbol
 - + | -: Convexity or concavity of the lobes
 - d^{1 | 2 | 3}_{3 | 5}: Number of dots/"degrés" per lobes. Optional
-- c | o : presence of a central point (p) or a central circle (o). Optional
+- p | o : presence of a central point (p) or a central circle (o). Optional
 
-E.g.: B3d²c
+E.g.: B3d²p
 
 ## Usage
 
@@ -33,9 +33,18 @@ The species - symbols matrix helps to attribute a tree species to a symbol, base
 
 The script `species.py` makes a svg file for each symbol from the matrix with the species name as the filename.
 
+Some convention are used for the current mapping of species to their symbols:
 
-# TODO
+For broadleaved trees:
 
-- coniferous species
+- sometimes, the simplest symbol without dots and central points is for a generic _genus_.
+- dots denote for spikes on the leaves and/or on branches
+- presence of a central point for broadleaved is for trees with compound leaves
 
+Needled-leaved/coniferous trees symbols are somehow classified following the phylogenetic classification (see https://fr.wikipedia.org/wiki/Pinaceae):
 
+- C3-symbols are for _Pinus_.
+- C4-symbols are for _Pinoide_ except _Pinus_, i.e., _Larix_, _Picea_, _Pseudotsuga_.
+- C5-symbols are for _Abietoideae_: mainly _Abies_, but also _Cedrus_ and _Tsuga_.
+- Symbols without central point are from Europe, symbols with a central point (p) are from (North) America.
+- _Larix sp._ have no dots.

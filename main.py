@@ -5,14 +5,14 @@ N = (3, 4, 5)
 BASE_CONVEXITY = 0.3
 concavity = 3
 
-dot1 = 1.4
-dot2 = 1.8
-dot3 = 2.2
+dot1 = 1.6
+dot2 = 2.2
+dot3 = 2.8
 DOTS = (None, [dot1], [dot1, dot2], [dot1, dot2, dot3])
 
-b1 = 1.4
-b2 = 1.8
-b3 = 2.2
+b1 = 1.6
+b2 = 2.2
+b3 = 2.8
 BRANCHES = (None, [b1], [b1, b2], [b1, b2, b3])
 
 

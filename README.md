@@ -23,6 +23,18 @@ Run `python3 main.py` to generate a svg file with a symbol, for each of the comb
 - Number of dots per lobes for the broadleaved symbols or branches for the needle-leaved symbols.
 - Presence of a central point (`p`) or a central circle (`o`) or `None`
 
+## Dependencies
+
+svgwrite is the unique dependency. 
+
+Use a virtual env:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install svgwrite
+```
+
 ## Table of symbols
 
 The script `table.py` makes a unique svg file of all combinations of symbols

@@ -1,3 +1,4 @@
 *.svg
 species/*.svg
 __pycache__
+venv

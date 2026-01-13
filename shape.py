@@ -3,11 +3,11 @@ import math
 
 CENTER = (250, 250)  # Center coordinates of the circle
 RADIUS = 100  # Radius of the circle
-DOT_RADIUS = 14
-O_RADIUS = 22
-STROKE_WIDTH = 36
-MAIN_BRANCH_START_LENGTH = 0.75 * RADIUS
-BRANCH_LENGTH = 20
+DOT_RADIUS = 18 # Central and external dots 
+O_RADIUS = 28 # Central "o" 
+STROKE_WIDTH = 32
+MAIN_BRANCH_LENGTH = 0.75 * RADIUS # Main branch of needle-leaved trees
+BRANCH_LENGTH = 30 # Adjacent branch of needle-leaved trees
 STROKE_COLOR = "#09711c"
 
 
@@ -290,7 +290,7 @@ def draw_needleleaved_symbol(dwg, center, n, branches=None, centroid=None, label
         if branches:
             main_branch_length = RADIUS * (branches[-1] - 1) + 2 * BRANCH_LENGTH
         else:
-            main_branch_length = MAIN_BRANCH_START_LENGTH
+            main_branch_length = MAIN_BRANCH_LENGTH
 
         start_point = move(center, RADIUS, angle_quadrant_i)
         end_point = move(center, RADIUS + main_branch_length, angle_quadrant_i)
